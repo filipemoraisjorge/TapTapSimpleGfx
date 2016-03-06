@@ -12,7 +12,7 @@ public class SimpleGfxRepresentationFactory implements RepresentationFactory {
 
         Representable shape = null;
         if (type == GameObjectType.FIELD) {
-            shape = new Rectangle(x, y, width, height);
+            shape = new Rect(x, y, width, height);
         }
         return shape;
 
@@ -23,7 +23,7 @@ public class SimpleGfxRepresentationFactory implements RepresentationFactory {
 
         Representable shape = null;
         if (type == GameObjectType.MARKER) {
-            shape = new Ball(x, y, radius);
+            shape = new Circle(x, y, radius);
         }
         return shape;
 

@@ -2,6 +2,7 @@ package simplegfx;
 
 
 import game_objects.Representable;
+import org.academiadecodigo.simplegraphics.graphics.Fillable;
 import org.academiadecodigo.simplegraphics.graphics.Movable;
 import org.academiadecodigo.simplegraphics.graphics.Shape;
 
@@ -44,6 +45,12 @@ public class SimpleGfxRepresentation implements Representable {
 
     public void draw() {
         shape.draw();
+    }
+
+    public void fill() {
+        if (shape instanceof Fillable) {
+            ((Fillable) shape).fill();
+        }
     }
 
 }

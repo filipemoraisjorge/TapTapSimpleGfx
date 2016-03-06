@@ -1,16 +1,18 @@
 package game_objects;
 
-public class Marker extends GameObject {
-    private static final double INCREASED_SPEED = 1.10;
+/**
+ * Created by filipejorge on 04/03/16.
+ */
 
-    //private double[] velocity;
+public class Marker extends GameObject {
+
 
     private double velocityX;
     private double velocityY;
 
     public Marker(Representable representation) {
         super(representation);
-        chooseRandomVelocityAndDirection(10);
+        chooseRandomPos();
     }
 
     public Marker(Representable representation, double velocityX, double velocityY) {
@@ -19,40 +21,10 @@ public class Marker extends GameObject {
         this.velocityY = velocityY;
     }
 
-    public void chooseRandomVelocityAndDirection(int maxVelocity) {
-        //velocityX = 9;
-        //velocityY = 3;
-        velocityX = (Math.random() * maxVelocity) + 1;
-        velocityY = (Math.random() * maxVelocity) + 1;
-        if (Math.random() < 0.5) {
-            bounceHorizontal();
-        }
-        if (Math.random() < 0.5) {
-            bounceVertical();
-        }
-        //velocity = new double[] {velocityX, velocityY};
-    }
+    public void chooseRandomPos() {
+        velocityX = (Math.random()) + 1;
+        velocityY = (Math.random()) + 1;
 
-    public void bounceHorizontal() {
-        velocityX = -velocityX * INCREASED_SPEED;
-    }
-
-    public void bounceVertical() {
-        velocityY = -velocityY * INCREASED_SPEED;
-    }
-
-    public void stop() {
-        velocityX = 0;
-        velocityY = 0;
-    }
-
-    public void reset(int x, int y, int maxVelocity) {
-        move(x - getX(), y - getY());
-        chooseRandomVelocityAndDirection(maxVelocity);
-    }
-
-    public void move() {
-        this.move((int) velocityX, (int) velocityY);
     }
 
     public int getRadius() {
