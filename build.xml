@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<project name="TaptapSimpleGFX" default="options">
+
+    <!-- Initialize build properties  -->
+    <target name="init" description="Initializes properties">
+        <property name="project.name" value="TapTapSimpleGFX"/>
+        <property name="author.name" value="Filipe Jorge"/>
+        <property name="version.number" value="1.0"/>
+        <property name="src.dir" value="src"/>
+        <property name="main.class" value="org.academiadecodigo.bootcamp.filipejorge.Main"/>
+        <property name="build.dir" value="build"/>
+        <property name="classes.dir" value="${build.dir}/classes"/>
+        <property name="resources.dir" value="resources"/>
+        <property name="lib.dir" value="lib"/>
+        <path id="classpath">
+            <fileset dir="${lib.dir}" includes="**/*.jar"/>
+        </path>
+        <property name="desc.prepare" value="Creates the build and classes directories."/>
+        <property name="desc.clean" value="Clean up project."/>
+        <property name="desc.compile" value="Compiles the source code."/>
+        <property name="desc.jarfile" value="Packs project in .jar file."/>
+        <property name="desc.run" value="Packs and runs the .jar file."/>
+    </target>
+
+    <!-- Options descriptions -->
+    <target name="options" description="Outputs the available options" depends="init">
+        <echo message="prepare - ${desc.prepare}
+      ${line.separator}clean - ${desc.clean}
+      ${line.separator}compile - ${desc.compile}
+      ${line.separator}jarfile - ${desc.jarfile}
+      ${line.separator}run - ${desc.run}"/>
+    </target>
+
+    <!-- Creates the build directories to hold JAR and Class files -->
+    <target name="prepare" description="${desc.prepare}" depends="init">
+        <mkdir dir="${classes.dir}"/>
+    </target>
+
+    <!-- Removes the build directory -->
+    <target name="clean" description="${desc.clean}" depends="init">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <!-- Compiles the source code -->
+    <target name="compile" description="${desc.compile}" depends="prepare">
+        <javac srcdir="${src.dir}" destdir="${classes.dir}">
+            <classpath refid="classpath"/>
+        </javac>
+    </target>
+
+    <!-- Creates a JAR file with lib and resources-->
+    <target name="jarfile" description="${desc.jarfile}" depends="compile">
+        <jar destfile="${build.dir}/${project.name}.jar" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Class-Path" value="${lib.dir} ${resources.dir}"/>
+                <attribute name="Main-Class" value="${main.class}"/>
+                <attribute name="Built-By" value="${author.name}"/>
+                <attribute name="Version" value="${version.number}"/>
+            </manifest>
+            <zipgroupfileset dir="${lib.dir}" includes="*.jar"/>
+            <fileset dir=".">
+                <include name="**/${resources.dir}/**"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <!-- Creates and runs the JAR file -->
+    <target name="run" description="${desc.run}" depends="jarfile">
+        <java jar="${build.dir}/${project.name}.jar" fork="true"/>
+    </target>
+
+</project>

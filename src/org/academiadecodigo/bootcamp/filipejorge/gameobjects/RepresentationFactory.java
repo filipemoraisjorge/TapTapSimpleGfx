@@ -1,4 +1,4 @@
-package game_objects;
+package org.academiadecodigo.bootcamp.filipejorge.gameobjects;
 
 public interface RepresentationFactory {
 

@@ -1,4 +1,6 @@
-import simplegfx.SimpleGfxRepresentationFactory;
+package org.academiadecodigo.bootcamp.filipejorge;
+
+import org.academiadecodigo.bootcamp.filipejorge.simplegfx.SimpleGfxRepresentationFactory;
 
 /**
  * Created by filipejorge on 04/03/16.

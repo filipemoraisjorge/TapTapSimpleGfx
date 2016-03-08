@@ -1,9 +1,9 @@
-package simplegfx;
+package org.academiadecodigo.bootcamp.filipejorge.simplegfx;
 
 
-import game_objects.GameObjectType;
-import game_objects.Representable;
-import game_objects.RepresentationFactory;
+import org.academiadecodigo.bootcamp.filipejorge.gameobjects.GameObjectType;
+import org.academiadecodigo.bootcamp.filipejorge.gameobjects.Representable;
+import org.academiadecodigo.bootcamp.filipejorge.gameobjects.RepresentationFactory;
 
 public class SimpleGfxRepresentationFactory implements RepresentationFactory {
 

@@ -1,4 +1,4 @@
-package game_objects;
+package org.academiadecodigo.bootcamp.filipejorge.gameobjects;
 
 public class GameObject {
 
@@ -14,6 +14,14 @@ public class GameObject {
 
     public void move(int x, int y) {
         representation.move(x, y);
+    }
+
+    public void setPos(int x, int y) {
+        representation.setPos(x, y);
+    }
+
+    public void setCenter(int x, int y) {
+        representation.setPos(x - getWidth() / 2, y - getHeight() / 2);
     }
 
     public int getX() {
@@ -32,6 +40,18 @@ public class GameObject {
         representation.draw();
     }
 
+    public void fill() {
+        representation.fill();
+    }
+
+    public void delete() {
+        representation.delete();
+    }
+
+    public void setColor(int r, int g, int b) {
+        representation.setColor(r, g, b);
+    }
+
     public int getWidth() {
         return getRepresentation().getWidth();
     }
@@ -40,9 +60,5 @@ public class GameObject {
         return getRepresentation().getHeight();
     }
 
-    public int[] getCenterPoint() {
-        int[] point = {getX() + getWidth() / 2, getY() + getHeight() / 2};
-        return point;
-    }
 
 }

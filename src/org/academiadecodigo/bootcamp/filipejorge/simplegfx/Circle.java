@@ -1,4 +1,4 @@
-package simplegfx;
+package org.academiadecodigo.bootcamp.filipejorge.simplegfx;
 
 import org.academiadecodigo.simplegraphics.graphics.Ellipse;
 
