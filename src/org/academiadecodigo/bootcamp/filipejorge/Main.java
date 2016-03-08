@@ -1,5 +1,6 @@
 package org.academiadecodigo.bootcamp.filipejorge;
 
+import org.academiadecodigo.bootcamp.filipejorge.network.UDPConnection;
 import org.academiadecodigo.bootcamp.filipejorge.simplegfx.SimpleGfxRepresentationFactory;
 
 /**
@@ -9,7 +10,10 @@ public class Main {
     public static void main(String[] args) {
 
 
+
         Game game = new Game(new SimpleGfxRepresentationFactory());
+        UDPConnection connection = new UDPConnection();
+
 
     }
 }

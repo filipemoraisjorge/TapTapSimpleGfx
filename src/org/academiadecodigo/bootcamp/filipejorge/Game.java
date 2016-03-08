@@ -1,6 +1,7 @@
 package org.academiadecodigo.bootcamp.filipejorge;
 
 import org.academiadecodigo.bootcamp.filipejorge.gameobjects.*;
+import org.academiadecodigo.bootcamp.filipejorge.network.UDPConnection;
 import org.academiadecodigo.simplegraphics.mouse.Mouse;
 import org.academiadecodigo.simplegraphics.mouse.MouseEvent;
 import org.academiadecodigo.simplegraphics.mouse.MouseEventType;
@@ -34,9 +35,10 @@ public class Game {
     private Marker p1Marker;
     private Marker p2Marker;
 
+    private UDPConnection player2;
+
     private float fakeReceivedXPerCent = (float) (Math.random() * 100);
     private float fakeReceivedYPerCent = (float) (Math.random() * 100);
-    ;
 
     public Game(RepresentationFactory factory) {
         this.factory = factory;
@@ -74,6 +76,12 @@ public class Game {
         boolean playerTurn = false;
 
         //choose who starts randomly
+        //fifty-fifty.
+        if (Math.random() >= 0.5f) {
+            playerTurn = true;
+            p1Marker.setCenter(field1.getWidth() - field1.percentToX(fakeReceivedXPerCent), field1.getY() + field1.percentToY(fakeReceivedYPerCent));
+            p1Marker.fill();
+        }
 
         while (true) {
             try {
@@ -90,7 +98,7 @@ public class Game {
 
 
             //receive x,y from udp
-            //fake, and if udp fails
+                //fake, and if udp fails
             if (!playerTurn) {
                 System.out.println("received from p2");
                 p2Marker.draw();
@@ -99,7 +107,6 @@ public class Game {
                 p1Marker.setCenter(field1.getWidth() - field1.percentToX(fakeReceivedXPerCent), field1.getY() + field1.percentToY(fakeReceivedYPerCent));
                 //p1Marker.setPos(field1.getRandomXInside(p1Marker.getWidth()), field1.getRandomYInside(p1Marker.getHeight()));
                 p1Marker.fill();
-
 
                 playerTurn = true;
                 //start timer
