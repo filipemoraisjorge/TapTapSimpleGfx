@@ -28,6 +28,7 @@ public class UDPConnection {
     }
 
     private void sentBroadcast() throws IOException {
+
         DatagramSocket broadcastSocket = new DatagramSocket();
         broadcastSocket.setBroadcast(true);
 
@@ -47,18 +48,21 @@ public class UDPConnection {
             broadcastSocket.receive(thereIsSomeone);
             String message = new String(thereIsSomeone.getData()).trim();
 
-            System.out.println("received from: " + thereIsSomeone.getAddress().getHostAddress());
-            System.out.println("data: " + new String(thereIsSomeone.getData()).trim());
+            System.out.println("b received from: " + thereIsSomeone.getSocketAddress());
+            System.out.println("b data: " + new String(thereIsSomeone.getData()).trim());
 
-            if (message.equals(ANSWER)) { //first parte equals ANSWER, ther the IP and Port
+            String[] msgStrings = message.split(" "); //first part equals ANSWER, then the IP and Port
+            System.out.println(message);
+            if (msgStrings[0].equals(ANSWER)) {
 
 
                 //System.out.println(thereIsSomeone.getAddress().getHostName() + " " + thereIsSomeone.getAddress().getHostAddress() + " " + message);
 
 
-                //set up the permanent connection- from this side (much do the same on runListening)
-                System.out.println("broad " + thereIsSomeone.getPort() + " " + thereIsSomeone.getAddress());
-                clientSocket = new DatagramSocket(thereIsSomeone.getSocketAddress());
+                //set up the permanent connection- from this side (must do the same on runListening)
+                System.out.println("broad " + msgStrings[1] + " " + msgStrings[1]);
+                System.out.println("broad " + thereIsSomeone.getAddress().getHostAddress() + " ");
+                clientSocket = new DatagramSocket(new Integer(msgStrings[2]), InetAddress.getByName(msgStrings[1]));
                 System.out.println("Broadcaster. Connections settled: " + clientSocket.getInetAddress() + " " + clientSocket.getPort());
             } else {//do something if the answer is incorrect...
             }
@@ -97,21 +101,23 @@ public class UDPConnection {
         listeningSocket.receive(imSomeone);
 
         //Packet received
-        System.out.println("received from: " + imSomeone.getAddress().getHostAddress());
-        System.out.println("data: " + new String(imSomeone.getData()).trim());
+        System.out.println("l received from: " + imSomeone.getAddress());
+        System.out.println("l data: " + new String(imSomeone.getData()).trim());
 
         //See if the packet holds the right command (message)
         String message = new String(imSomeone.getData()).trim();
+
         if (message.equals(QUESTION)) {
-            byte[] sendData = ANSWER.getBytes(); //joint IP and PORT
+            byte[] sendData = (ANSWER + " " + listeningSocket.getLocalAddress() + " " + listeningSocket.getLocalPort()).getBytes(); //joint IP and PORT
+            System.out.println(ANSWER + " " + listeningSocket.getLocalSocketAddress() + " " + listeningSocket.getLocalPort());
             //Send a response
             DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, imSomeone.getAddress(), imSomeone.getPort());
             listeningSocket.send(sendPacket);
 
-            System.out.println("responded to: " + sendPacket.getAddress().getHostAddress());
+            System.out.println("l responded to: " + sendPacket.getAddress().getHostAddress());
 
             //set up the permanent connection- from this side
-            System.out.println("list " + imSomeone.getPort() + " " + imSomeone.getAddress());
+            System.out.println("list " + imSomeone.getPort() + " " + imSomeone.getAddress().getHostAddress());
             clientSocket = new DatagramSocket(imSomeone.getSocketAddress());
             System.out.println("Listener. Connections settled: " + clientSocket.getInetAddress() + " " + clientSocket.getPort());
         }
