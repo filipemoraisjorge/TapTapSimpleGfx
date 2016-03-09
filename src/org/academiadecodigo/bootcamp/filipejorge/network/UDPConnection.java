@@ -33,7 +33,7 @@ public class UDPConnection {
 
         //broadcast to private network(?)
         byte[] broadcastData = QUESTION.getBytes();
-        InetAddress address = InetAddress.getByName("255.255.255.255");
+        InetAddress address = InetAddress.getByName("255.255.255.255"); //read that most routers block this. 192.168.0.255 should be better but inflexible.
         DatagramPacket isSomeoneThere = new DatagramPacket(broadcastData, broadcastData.length, address, 8888);
         broadcastSocket.send(isSomeoneThere);
         System.out.println("broadcasted.");
@@ -42,12 +42,20 @@ public class UDPConnection {
         byte[] receiveData = new byte[BUFFER_SIZE];
         DatagramPacket thereIsSomeone = new DatagramPacket(receiveData, receiveData.length);
         System.out.println("waiting response.");
-        broadcastSocket.setSoTimeout(12000);
+        broadcastSocket.setSoTimeout(2000);
         try {
             broadcastSocket.receive(thereIsSomeone);
             String message = new String(thereIsSomeone.getData()).trim();
-            if (message.equals(ANSWER)) {
+
+            System.out.println("received from: " + thereIsSomeone.getAddress().getHostAddress());
+            System.out.println("data: " + new String(thereIsSomeone.getData()).trim());
+
+            if (message.equals(ANSWER)) { //first parte equals ANSWER, ther the IP and Port
+
+
                 //System.out.println(thereIsSomeone.getAddress().getHostName() + " " + thereIsSomeone.getAddress().getHostAddress() + " " + message);
+
+
                 //set up the permanent connection- from this side (much do the same on runListening)
                 System.out.println("broad " + thereIsSomeone.getPort() + " " + thereIsSomeone.getAddress());
                 clientSocket = new DatagramSocket(thereIsSomeone.getSocketAddress());
@@ -74,14 +82,14 @@ public class UDPConnection {
     private void runListener() throws IOException {
 
 
-        DatagramSocket listeningSocket;
+        System.out.println("listening!");
 
         //Listen to all the UDP trafic that is destined for this port
+        DatagramSocket listeningSocket;
         listeningSocket = new DatagramSocket(8888, InetAddress.getByName("0.0.0.0"));
         listeningSocket.setBroadcast(true);
 
         // while (true) {
-        System.out.println("listening!");
 
         //Receive a packet
         byte[] recvBuf = new byte[BUFFER_SIZE];
@@ -95,7 +103,7 @@ public class UDPConnection {
         //See if the packet holds the right command (message)
         String message = new String(imSomeone.getData()).trim();
         if (message.equals(QUESTION)) {
-            byte[] sendData = ANSWER.getBytes();
+            byte[] sendData = ANSWER.getBytes(); //joint IP and PORT
             //Send a response
             DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, imSomeone.getAddress(), imSomeone.getPort());
             listeningSocket.send(sendPacket);
