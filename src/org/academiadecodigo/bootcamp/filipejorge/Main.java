@@ -12,7 +12,6 @@ public class Main {
 
 
         Game game = new Game(new SimpleGfxRepresentationFactory());
-        UDPConnection connection = new UDPConnection();
 
 
     }
