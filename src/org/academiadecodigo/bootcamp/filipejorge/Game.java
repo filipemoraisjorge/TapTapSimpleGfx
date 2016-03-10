@@ -7,6 +7,7 @@ import org.academiadecodigo.simplegraphics.mouse.MouseEvent;
 import org.academiadecodigo.simplegraphics.mouse.MouseEventType;
 import org.academiadecodigo.simplegraphics.mouse.MouseHandler;
 
+import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -18,13 +19,13 @@ public class Game {
 
     private final int MARGIN_TOP = 10;
     private final int MARGIN_LEFT = 10;
-    private final int SCREEN_WIDTH = 800;
-    private final int SCREEN_HEIGHT = 480;
+    //private final int SCREEN_WIDTH = 800;
+    //private final int SCREEN_HEIGHT = 480;
 
 
     //GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-    // private final int SCREEN_WIDTH = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth() - (MARGIN_LEFT * 2);
-    // private final int SCREEN_HEIGHT = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight() - 23 - (MARGIN_TOP * 2);
+    private final int SCREEN_WIDTH = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth() - (MARGIN_LEFT * 2);
+    private final int SCREEN_HEIGHT = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight() - 23 - (MARGIN_TOP * 2);
 
     private boolean mouseClicked;
     private int mouseX;
@@ -55,9 +56,7 @@ public class Game {
         field2.fill();
         field2.setColor(35, 15, 15);
 
-        System.out.println("Connecting");
         player2Connection = new UDPConnection();
-        System.out.println("Connected");
 
         p1Marker = new Marker(factory.getGameObject(GameObjectType.MARKER, field1.getX(), field1.getY(), 30));
         p1Marker.delete();
@@ -119,7 +118,6 @@ public class Game {
 
                 float receivedXpercent = new Float(receivedString[0]);
                 float receivedYpercent = new Float(receivedString[1]);
-                System.out.println("received from p2 " + receivedXpercent + " " + receivedYpercent);
                 p2Marker.draw();
 
                 //receive a %, need to translate to this field x, y
@@ -161,8 +159,6 @@ public class Game {
                         //couldn't send
                         e.printStackTrace();
                     }
-                    System.out.println("sent to p2: x " + sentXpercent + " " + sentYpercent);
-
                     playerTurn = false;
                     //stop timing, calc score
                 }

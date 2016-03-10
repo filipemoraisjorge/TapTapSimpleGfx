@@ -15,21 +15,22 @@ public class UDPConnection {
     public static final String ANSWER = "TAPTAP_YESIMHERE";
     private static int BUFFER_SIZE = 24;
 
-    private DatagramSocket clientSocket;
-    private InetAddress clientAddress;
+    private InetAddress hostAddress;
+    private InetAddress destAddress;
     private int hostPort = 49152 + (int) (Math.random() * (49152 - 65535)); //49152–65535
     private int destPort;
 
     public UDPConnection() {
         try {
 
-            this.clientAddress = getAddressByBroadcast();
+            this.hostAddress = InetAddress.getLocalHost();
+            this.destAddress = getAddressByBroadcast();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        System.out.println("Connection settled: from " + hostPort + " to " + clientAddress.getHostAddress() + " " + destPort);
+        System.out.println("Connection settled: from " + hostAddress + ":" + hostPort + " to " + destAddress.getHostAddress() + ":" + destPort);
     }
 
     /**
@@ -51,7 +52,7 @@ public class UDPConnection {
         //broadcast to private network(?)
         byte[] broadcastData = QUESTION.getBytes();
         InetAddress address = InetAddress.getByName("255.255.255.255"); //read that most routers block this. 192.168.0.255 should be better but inflexible.
-        DatagramPacket isSomeoneThere = new DatagramPacket(broadcastData, broadcastData.length, address, 8888);
+        DatagramPacket isSomeoneThere = new DatagramPacket(broadcastData, broadcastData.length, address, 55555);
         broadcastSocket.send(isSomeoneThere);
         System.out.println("broadcasted.");
 
@@ -100,7 +101,7 @@ public class UDPConnection {
 
         //Listen to all the UDP trafic that is destined for this port
         DatagramSocket listeningSocket;
-        listeningSocket = new DatagramSocket(8888, InetAddress.getByName("0.0.0.0"));
+        listeningSocket = new DatagramSocket(55555, InetAddress.getByName("0.0.0.0"));
         listeningSocket.setBroadcast(true);
 
         //Receive a packet
@@ -143,8 +144,8 @@ public class UDPConnection {
 
         DatagramSocket outSocket = new DatagramSocket();
         byte[] sendData = message.getBytes();
-        System.out.println("Sent Message: " + message + " to " + clientAddress + " " + destPort);
-        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clientAddress, destPort);
+        System.out.println("Sent Message: " + message + " to " + destAddress + " " + destPort);
+        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, destAddress, destPort);
         outSocket.send(sendPacket);
         outSocket.close();
 
@@ -153,7 +154,7 @@ public class UDPConnection {
 
     public String in() throws IOException {
 
-        DatagramSocket inSocket = new DatagramSocket(hostPort, clientAddress);
+        DatagramSocket inSocket = new DatagramSocket(hostPort, hostAddress);
 
         byte[] receiveData = new byte[BUFFER_SIZE];
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -167,7 +168,7 @@ public class UDPConnection {
         inSocket.receive(receivePacket);
         response = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
-        System.out.println("Received Message: " + response + "to" + clientAddress + " " + hostPort);
+        System.out.println("Received Message: " + response + "from" + destAddress + " " + destPort);
         inSocket.close();
 /*        } catch (SocketTimeoutException ste) {
 
