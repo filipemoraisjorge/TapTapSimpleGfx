@@ -76,6 +76,7 @@ public class SimpleGfxRepresentation implements Representable {
     public void setColor(int r, int g, int b) {
         if (shape instanceof Colorable) {
             ((Colorable) shape).setColor(new Color(r, g, b));
+
         }
     }
 

@@ -17,6 +17,8 @@ public class Game {
 
     private RepresentationFactory factory;
 
+    private final int MAX_SCORE = 60000;
+
     private final int MARGIN_TOP = 10;
     private final int MARGIN_LEFT = 10;
     //private final int SCREEN_WIDTH = 800;
@@ -24,8 +26,12 @@ public class Game {
 
 
     //GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-    private final int SCREEN_WIDTH = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth() - (MARGIN_LEFT * 2);
-    private final int SCREEN_HEIGHT = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight() - 23 - (MARGIN_TOP * 2);
+    //private final int SCREEN_WIDTH = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth() - (MARGIN_LEFT * 2);
+    //private final int SCREEN_HEIGHT = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight() - 23 - (MARGIN_TOP * 2);
+
+    private final int SCREEN_WIDTH = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth() - (MARGIN_LEFT * 2) - 240;
+    private final int SCREEN_HEIGHT = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight() - 23 - (MARGIN_TOP * 2) - 240;
+
 
     private boolean mouseClicked;
     private int mouseX;
@@ -38,8 +44,8 @@ public class Game {
 
     private UDPConnection player2Connection;
 
-    private float fakeReceivedXPerCent = (float) (Math.random() * 100);
-    private float fakeReceivedYPerCent = (float) (Math.random() * 100);
+    //private float fakeReceivedXPerCent = (float) (Math.random() * 100);
+    //private float fakeReceivedYPerCent = (float) (Math.random() * 100);
 
     public Game(RepresentationFactory factory) {
         this.factory = factory;
@@ -77,8 +83,11 @@ public class Game {
         boolean markTapped = false;
         boolean playerTurn = false;
 
-        //choose who starts randomly
-        //fifty-fifty.
+        int score = 0;
+        long startTime = 0L;
+        long endTime = 0L;
+
+
         if (player2Connection.chooseTurn()) {
             System.out.println("your turn");
             playerTurn = true;
@@ -102,8 +111,6 @@ public class Game {
             //should be transformed to 2 floats
             //they are percentage values, so it can work with different screen sizes.
 
-            //fake, and if udp fails
-
             //phase1 - player1 has to hit is marker, his marker position is sent by player2
             //receiving data and setting up marker
             if (!playerTurn) {
@@ -115,17 +122,33 @@ public class Game {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                p2Marker.delete();
 
+                //update score with player2 turnScore
+                score -= Integer.parseInt(receivedString[2]);
+                System.out.println("score " + score);
+
+                if (score <= -MAX_SCORE) {
+                    System.out.println("You lose!");
+                }
+                if (score >= MAX_SCORE) {
+                    System.out.println("YOU WIN!!!");
+                }
+
+                //position sent by player2
                 float receivedXpercent = new Float(receivedString[0]);
                 float receivedYpercent = new Float(receivedString[1]);
-                p2Marker.draw();
+
 
                 //receive a %, need to translate to this field x, y
                 p1Marker.setCenter(field1.getWidth() - field1.percentToX(receivedXpercent), field1.getY() + field1.percentToY(receivedYpercent));
                 p1Marker.fill();
-
+                field1.setColor(15, 15, 90);
                 playerTurn = true;
+
                 //start timing for score
+                startTime = System.currentTimeMillis();
+
             }
 
             //detect if player1 hit marker
@@ -134,6 +157,8 @@ public class Game {
                 markTapped = true;
                 mouseClicked = false;
                 p1Marker.delete();
+                field1.setColor(15, 15, 30);
+                field2.setColor(90, 15, 15);
                 System.out.println("Hit");
             }
 
@@ -154,13 +179,26 @@ public class Game {
                     float sentYpercent = field2.yToPercent(p2Y);
 
                     try {
-                        player2Connection.out(sentXpercent + " " + sentYpercent);
+
+                        //stop timing, calc score
+                        int turnScore = 0;
+                        if (startTime != 0) {
+                            endTime = System.currentTimeMillis();
+                            turnScore = (int) (endTime - startTime);
+                            System.out.println("turnS " + turnScore);
+                            score += turnScore;
+                        }
+
+                        //send to player2
+                        player2Connection.out(sentXpercent + " " + sentYpercent + " " + turnScore);
+
                     } catch (IOException e) {
                         //couldn't send
                         e.printStackTrace();
                     }
                     playerTurn = false;
-                    //stop timing, calc score
+                    field2.setColor(35, 15, 15);
+
                 }
 
             }
