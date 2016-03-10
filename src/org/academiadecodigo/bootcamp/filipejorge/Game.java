@@ -40,14 +40,13 @@ public class Game {
     private float fakeReceivedXPerCent = (float) (Math.random() * 100);
     private float fakeReceivedYPerCent = (float) (Math.random() * 100);
 
-    public Game(RepresentationFactory factory, int hostPort, int destPort) {
+    public Game(RepresentationFactory factory) {
         this.factory = factory;
-        player2Connection = new UDPConnection(hostPort, destPort);
 
-        init(hostPort % 2 == 0);
+        init();
     }
 
-    public void init(boolean myTurn) {
+    public void init() {
         field1 = new Field(factory.getGameObject(GameObjectType.FIELD, MARGIN_LEFT + 1, MARGIN_TOP + 1, SCREEN_WIDTH / 2, SCREEN_HEIGHT));
         field1.fill();
         field1.setColor(15, 15, 30);
@@ -57,7 +56,7 @@ public class Game {
         field2.setColor(35, 15, 15);
 
         System.out.println("Connecting");
-        //player2Connection = new UDPConnection();
+        player2Connection = new UDPConnection();
         System.out.println("Connected");
 
         p1Marker = new Marker(factory.getGameObject(GameObjectType.MARKER, field1.getX(), field1.getY(), 30));
@@ -70,18 +69,18 @@ public class Game {
 
         TaptapMouseHandler mouseHandler = new TaptapMouseHandler();
 
-        start(myTurn);
+        start();
 
     }
 
-    private void start(boolean myTurn) {
+    private void start() {
 
         boolean markTapped = false;
         boolean playerTurn = false;
 
         //choose who starts randomly
         //fifty-fifty.
-        if (myTurn) {
+        if (player2Connection.chooseTurn()) {
             System.out.println("your turn");
             playerTurn = true;
             markTapped = true;

@@ -17,25 +17,28 @@ public class UDPConnection {
 
     private DatagramSocket clientSocket;
     private InetAddress clientAddress;
-    private int hostPort;
+    private int hostPort = 49152 + (int) (Math.random() * (49152 - 65535)); //49152–65535
     private int destPort;
 
-    public UDPConnection(int hostPort, int destPort) {
+    public UDPConnection() {
         try {
 
-            this.clientAddress = InetAddress.getByName("192.168.1.90"); //getAddressByBroadcast();
-            this.hostPort = hostPort;
-            this.destPort = destPort;
-            this.clientSocket = new DatagramSocket();
+            this.clientAddress = getAddressByBroadcast();
 
-
-        } catch (SocketException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        System.out.println("Connections settled: " + clientSocket.getInetAddress() + " " + clientSocket.getPort());
+        System.out.println("Connection settled: from " + hostPort + " to " + clientAddress.getHostAddress() + " " + destPort);
+    }
+
+    /**
+     * The one with the biggest port number starts
+     *
+     * @return
+     */
+    public boolean chooseTurn() {
+        return hostPort < destPort;
     }
 
     private InetAddress getAddressByBroadcast() throws IOException {
@@ -70,6 +73,7 @@ public class UDPConnection {
                 System.out.println("broad " + thereIsSomeone.getAddress().getHostAddress() + " " + thereIsSomeone.getPort());
 
                 clientAddress = thereIsSomeone.getAddress();
+                hostPort = broadcastSocket.getLocalPort();
                 destPort = thereIsSomeone.getPort();
             } else {//do something if the answer is incorrect...
             }
@@ -123,7 +127,7 @@ public class UDPConnection {
             System.out.println("list " + imSomeone.getAddress().getHostAddress() + " " + imSomeone.getPort() + " " + imSomeone.getSocketAddress());
             clientAddress = imSomeone.getAddress();
             destPort = imSomeone.getPort();
-
+            hostPort = listeningSocket.getLocalPort();
         }
 
         listeningSocket.close();
