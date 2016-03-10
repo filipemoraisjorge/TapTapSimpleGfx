@@ -16,18 +16,31 @@ public class UDPConnection {
     private static int BUFFER_SIZE = 24;
 
     private DatagramSocket clientSocket;
+    private InetAddress clientAddress;
+    private int hostPort;
+    private int destPort;
 
-    public UDPConnection() {
+    public UDPConnection(int hostPort, int destPort) {
         try {
-            sentBroadcast();
+
+            this.clientAddress = InetAddress.getByName("192.168.1.90"); //getAddressByBroadcast();
+            this.hostPort = hostPort;
+            this.destPort = destPort;
+            this.clientSocket = new DatagramSocket();
+
+
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        System.out.println("Connections settled: " + clientSocket.getInetAddress() + " " + clientSocket.getPort());
     }
 
-    private void sentBroadcast() throws IOException {
+    private InetAddress getAddressByBroadcast() throws IOException {
+
+        InetAddress clientAddress = null;
 
         DatagramSocket broadcastSocket = new DatagramSocket();
         broadcastSocket.setBroadcast(true);
@@ -48,44 +61,37 @@ public class UDPConnection {
             broadcastSocket.receive(thereIsSomeone);
             String message = new String(thereIsSomeone.getData()).trim();
 
-            System.out.println("b received from: " + thereIsSomeone.getSocketAddress());
+            System.out.println("b received from: " + thereIsSomeone.getAddress().getHostAddress() + " " + thereIsSomeone.getPort());
             System.out.println("b data: " + new String(thereIsSomeone.getData()).trim());
 
-            String[] msgStrings = message.split(" "); //first part equals ANSWER, then the IP and Port
-            System.out.println(message);
-            if (msgStrings[0].equals(ANSWER)) {
-
-
-                //System.out.println(thereIsSomeone.getAddress().getHostName() + " " + thereIsSomeone.getAddress().getHostAddress() + " " + message);
-
+            if (message.equals(ANSWER)) {
 
                 //set up the permanent connection- from this side (must do the same on runListening)
-                System.out.println("broad " + msgStrings[1] + " " + msgStrings[1]);
-                System.out.println("broad " + thereIsSomeone.getAddress().getHostAddress() + " ");
-                clientSocket = new DatagramSocket(new Integer(msgStrings[2]), InetAddress.getByName(msgStrings[1]));
-                System.out.println("Broadcaster. Connections settled: " + clientSocket.getInetAddress() + " " + clientSocket.getPort());
+                System.out.println("broad " + thereIsSomeone.getAddress().getHostAddress() + " " + thereIsSomeone.getPort());
+
+                clientAddress = thereIsSomeone.getAddress();
+                destPort = thereIsSomeone.getPort();
             } else {//do something if the answer is incorrect...
             }
 
         } catch (SocketTimeoutException ste) {
 
             System.out.println("Seems nobody's there. Start listening and wait....");
-            runListener();
+            clientAddress = getAddressByListening();
 
         } finally {
-
 
             //close socket
             broadcastSocket.close();
 
         }
-
-
+        System.out.println("finaly client address: " + clientAddress);
+        return clientAddress;
     }
 
-    private void runListener() throws IOException {
+    private InetAddress getAddressByListening() throws IOException {
 
-
+        InetAddress clientAddress = null;
         System.out.println("listening!");
 
         //Listen to all the UDP trafic that is destined for this port
@@ -93,80 +99,85 @@ public class UDPConnection {
         listeningSocket = new DatagramSocket(8888, InetAddress.getByName("0.0.0.0"));
         listeningSocket.setBroadcast(true);
 
-        // while (true) {
-
         //Receive a packet
-        byte[] recvBuf = new byte[BUFFER_SIZE];
-        DatagramPacket imSomeone = new DatagramPacket(recvBuf, recvBuf.length);
+        byte[] receivedBuffer = new byte[BUFFER_SIZE];
+        DatagramPacket imSomeone = new DatagramPacket(receivedBuffer, receivedBuffer.length);
         listeningSocket.receive(imSomeone);
 
         //Packet received
-        System.out.println("l received from: " + imSomeone.getAddress());
+        System.out.println("l received from: " + imSomeone.getAddress().getHostAddress() + " " + imSomeone.getPort());
         System.out.println("l data: " + new String(imSomeone.getData()).trim());
 
         //See if the packet holds the right command (message)
         String message = new String(imSomeone.getData()).trim();
 
         if (message.equals(QUESTION)) {
-            byte[] sendData = (ANSWER + " " + listeningSocket.getLocalAddress() + " " + listeningSocket.getLocalPort()).getBytes(); //joint IP and PORT
-            System.out.println(ANSWER + " " + listeningSocket.getLocalSocketAddress() + " " + listeningSocket.getLocalPort());
+            byte[] sendData = ANSWER.getBytes();
             //Send a response
             DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, imSomeone.getAddress(), imSomeone.getPort());
             listeningSocket.send(sendPacket);
 
-            System.out.println("l responded to: " + sendPacket.getAddress().getHostAddress());
+            System.out.println("l responded to: " + sendPacket.getAddress().getHostAddress() + " " + sendPacket.getPort());
 
             //set up the permanent connection- from this side
-            System.out.println("list " + imSomeone.getPort() + " " + imSomeone.getAddress().getHostAddress());
-            clientSocket = new DatagramSocket(imSomeone.getSocketAddress());
-            System.out.println("Listener. Connections settled: " + clientSocket.getInetAddress() + " " + clientSocket.getPort());
+            System.out.println("list " + imSomeone.getAddress().getHostAddress() + " " + imSomeone.getPort() + " " + imSomeone.getSocketAddress());
+            clientAddress = imSomeone.getAddress();
+            destPort = imSomeone.getPort();
+
         }
-        // }
 
+        listeningSocket.close();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return clientAddress;
     }
 
+    public void out(String message) throws IOException {
 
-    public void sendDatagram(String message) throws IOException {
-
-        /*clientSocket = new DatagramSocket();
-        InetAddress address = InetAddress.getByName(host);
-*/
+        DatagramSocket outSocket = new DatagramSocket();
         byte[] sendData = message.getBytes();
+        System.out.println("Sent Message: " + message + " to " + clientAddress + " " + destPort);
+        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clientAddress, destPort);
+        outSocket.send(sendPacket);
+        outSocket.close();
 
-        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clientSocket.getInetAddress(), clientSocket.getPort());
-        clientSocket.send(sendPacket);
 
     }
 
-    public String receiveDatagram() throws IOException {
+    public String in() throws IOException {
+
+        DatagramSocket inSocket = new DatagramSocket(hostPort, clientAddress);
 
         byte[] receiveData = new byte[BUFFER_SIZE];
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
         String response = null;
 
         System.out.println("Waiting for return packet");
-        clientSocket.setSoTimeout(10000);
+        //clientSocket.setSoTimeout(100000);
 
-        try {
+        //try {
 
-            clientSocket.receive(receivePacket);
-            response = new String(receivePacket.getData(), 0, receivePacket.getLength());
+        inSocket.receive(receivePacket);
+        response = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
-            System.out.println("Received Message: " + response);
+        System.out.println("Received Message: " + response + "to" + clientAddress + " " + hostPort);
+        inSocket.close();
+/*        } catch (SocketTimeoutException ste) {
 
-        } catch (SocketTimeoutException ste) {
 
             System.out.println("Timeout Occurred: Packet assumed lost");
 
         } finally {
 
-            clientSocket.close();
-        }
+            //   clientSocket.close();
+        }*/
         return response;
 
 
     }
-
 }
 
 

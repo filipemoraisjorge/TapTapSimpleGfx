@@ -7,7 +7,6 @@ import org.academiadecodigo.simplegraphics.mouse.MouseEvent;
 import org.academiadecodigo.simplegraphics.mouse.MouseEventType;
 import org.academiadecodigo.simplegraphics.mouse.MouseHandler;
 
-import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -19,13 +18,13 @@ public class Game {
 
     private final int MARGIN_TOP = 10;
     private final int MARGIN_LEFT = 10;
-/*  private final int SCREEN_WIDTH = 800;
+    private final int SCREEN_WIDTH = 800;
     private final int SCREEN_HEIGHT = 480;
-    */
+
 
     //GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-    private final int SCREEN_WIDTH = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth() - (MARGIN_LEFT * 2);
-    private final int SCREEN_HEIGHT = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight() - 23 - (MARGIN_TOP * 2);
+    // private final int SCREEN_WIDTH = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth() - (MARGIN_LEFT * 2);
+    // private final int SCREEN_HEIGHT = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight() - 23 - (MARGIN_TOP * 2);
 
     private boolean mouseClicked;
     private int mouseX;
@@ -41,12 +40,14 @@ public class Game {
     private float fakeReceivedXPerCent = (float) (Math.random() * 100);
     private float fakeReceivedYPerCent = (float) (Math.random() * 100);
 
-    public Game(RepresentationFactory factory) {
+    public Game(RepresentationFactory factory, int hostPort, int destPort) {
         this.factory = factory;
-        init();
+        player2Connection = new UDPConnection(hostPort, destPort);
+
+        init(hostPort % 2 == 0);
     }
 
-    public void init() {
+    public void init(boolean myTurn) {
         field1 = new Field(factory.getGameObject(GameObjectType.FIELD, MARGIN_LEFT + 1, MARGIN_TOP + 1, SCREEN_WIDTH / 2, SCREEN_HEIGHT));
         field1.fill();
         field1.setColor(15, 15, 30);
@@ -56,7 +57,7 @@ public class Game {
         field2.setColor(35, 15, 15);
 
         System.out.println("Connecting");
-        player2Connection = new UDPConnection();
+        //player2Connection = new UDPConnection();
         System.out.println("Connected");
 
         p1Marker = new Marker(factory.getGameObject(GameObjectType.MARKER, field1.getX(), field1.getY(), 30));
@@ -69,18 +70,18 @@ public class Game {
 
         TaptapMouseHandler mouseHandler = new TaptapMouseHandler();
 
-        start();
+        start(myTurn);
 
     }
 
-    private void start() {
+    private void start(boolean myTurn) {
 
         boolean markTapped = false;
         boolean playerTurn = false;
 
         //choose who starts randomly
         //fifty-fifty.
-        if (Math.random() >= 0.5f) {
+        if (myTurn) {
             System.out.println("your turn");
             playerTurn = true;
             markTapped = true;
@@ -112,7 +113,7 @@ public class Game {
                 String[] receivedString = new String[1];
 
                 try {
-                    receivedString = player2Connection.receiveDatagram().split(" ");
+                    receivedString = player2Connection.in().split(" ");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -156,7 +157,7 @@ public class Game {
                     float sentYpercent = field2.yToPercent(p2Y);
 
                     try {
-                        player2Connection.sendDatagram(sentXpercent + " " + sentYpercent);
+                        player2Connection.out(sentXpercent + " " + sentYpercent);
                     } catch (IOException e) {
                         //couldn't send
                         e.printStackTrace();

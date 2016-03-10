@@ -10,8 +10,7 @@ public class Main {
     public static void main(String[] args) {
 
 
-
-        Game game = new Game(new SimpleGfxRepresentationFactory());
+        Game game = new Game(new SimpleGfxRepresentationFactory(), new Integer(args[0]), new Integer(args[1]));
 
 
     }
