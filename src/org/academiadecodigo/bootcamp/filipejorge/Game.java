@@ -56,21 +56,22 @@ public class Game {
     public void init() {
         field1 = new Field(factory.getGameObject(GameObjectType.FIELD, MARGIN_LEFT + 1, MARGIN_TOP + 1, SCREEN_WIDTH / 2, SCREEN_HEIGHT));
         field1.fill();
-        field1.setColor(15, 15, 30);
+        field1.setColor(TapTapColor.PLAYER1_INACTIVE);
 
         field2 = new Field(factory.getGameObject(GameObjectType.FIELD, MARGIN_LEFT + 1 + (SCREEN_WIDTH / 2), MARGIN_TOP + 1, SCREEN_WIDTH / 2, SCREEN_HEIGHT));
         field2.fill();
-        field2.setColor(35, 15, 15);
+        field2.setColor(TapTapColor.PLAYER2_INACTIVE);
 
         player2Connection = new UDPConnection();
 
         p1Marker = new Marker(factory.getGameObject(GameObjectType.MARKER, field1.getX(), field1.getY(), 30));
         p1Marker.delete();
-        p1Marker.setColor(135, 210, 255);
+        p1Marker.setColor(TapTapColor.MARK1);
 
         p2Marker = new Marker(factory.getGameObject(GameObjectType.MARKER, field2.getX(), field2.getY(), 30));
         p2Marker.delete();
-        p2Marker.setColor(255, 210, 175);
+        p2Marker.setColor(TapTapColor.MARK2);
+
 
         TaptapMouseHandler mouseHandler = new TaptapMouseHandler();
 
@@ -143,7 +144,7 @@ public class Game {
                 //receive a %, need to translate to this field x, y
                 p1Marker.setCenter(field1.getWidth() - field1.percentToX(receivedXpercent), field1.getY() + field1.percentToY(receivedYpercent));
                 p1Marker.fill();
-                field1.setColor(15, 15, 90);
+                field1.setColor(TapTapColor.PLAYER1_ACTIVE);
                 playerTurn = true;
 
                 //start timing for score
@@ -157,8 +158,8 @@ public class Game {
                 markTapped = true;
                 mouseClicked = false;
                 p1Marker.delete();
-                field1.setColor(15, 15, 30);
-                field2.setColor(90, 15, 15);
+                field1.setColor(TapTapColor.PLAYER1_INACTIVE);
+                field2.setColor(TapTapColor.PLAYER2_ACTIVE);
                 System.out.println("Hit");
             }
 
@@ -197,7 +198,7 @@ public class Game {
                         e.printStackTrace();
                     }
                     playerTurn = false;
-                    field2.setColor(35, 15, 15);
+                    field2.setColor(TapTapColor.PLAYER2_INACTIVE);
 
                 }
 

@@ -48,8 +48,8 @@ public class GameObject {
         representation.delete();
     }
 
-    public void setColor(int r, int g, int b) {
-        representation.setColor(r, g, b);
+    public void setColor(TapTapColor color) {
+        representation.setColor(color.getR(), color.getG(), color.getB());
     }
 
     public int getWidth() {
